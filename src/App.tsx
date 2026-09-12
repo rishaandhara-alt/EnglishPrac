@@ -168,10 +168,13 @@ function App() {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
+              <p className="text-xs text-gray-500">Questions Left</p>
+              <p className="text-sm font-semibold text-gray-600">{30 - answeredCount} remaining</p>
+            </div>
+            <div className="text-right">
               <p className="text-xs text-gray-500">Score</p>
               <p className="text-lg font-bold text-indigo-600">
                 {correctCount}<span className="text-gray-400">/{answeredCount}</span>
-                {answeredCount > 0 && <span className="text-sm ml-1">({percentage}%)</span>}
               </p>
             </div>
             <button
