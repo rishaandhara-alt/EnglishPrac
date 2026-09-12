@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { stories, Story, Question } from './data';
 
 function QuestionCard({ question, onAnswered }: { question: Question; onAnswered: (correct: boolean) => void }) {
@@ -122,6 +122,25 @@ function StorySection({ story, index, onAnswered }: { story: Story; index: numbe
 function App() {
   const [answeredCount, setAnsweredCount] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  useEffect(() => {
+    const handleChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleChange);
+    return () => document.removeEventListener('fullscreenchange', handleChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.log(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const handleAnswered = (correct: boolean) => {
     setAnsweredCount(prev => prev + 1);
@@ -147,12 +166,29 @@ function App() {
               <p className="text-xs text-gray-500">5 Stories • 30 Questions</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Score</p>
-            <p className="text-lg font-bold text-indigo-600">
-              {correctCount}<span className="text-gray-400">/{answeredCount}</span>
-              {answeredCount > 0 && <span className="text-sm ml-1">({percentage}%)</span>}
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-xs text-gray-500">Score</p>
+              <p className="text-lg font-bold text-indigo-600">
+                {correctCount}<span className="text-gray-400">/{answeredCount}</span>
+                {answeredCount > 0 && <span className="text-sm ml-1">({percentage}%)</span>}
+              </p>
+            </div>
+            <button
+              onClick={toggleFullscreen}
+              className="w-10 h-10 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+              title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
+            >
+              {isFullscreen ? (
+                <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              )}
+            </button>
           </div>
         </div>
       </header>
