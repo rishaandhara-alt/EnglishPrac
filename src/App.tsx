@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { stories, Story, Question } from './data';
 
-function QuestionCard({ question, onAnswered }: { question: Question; onAnswered: () => void }) {
+function QuestionCard({ question, onAnswered }: { question: Question; onAnswered: (correct: boolean) => void }) {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
 
@@ -9,7 +9,7 @@ function QuestionCard({ question, onAnswered }: { question: Question; onAnswered
     if (isAnswered) return;
     setSelectedAnswer(index);
     setIsAnswered(true);
-    onAnswered();
+    onAnswered(index === question.correctAnswer);
   };
 
   const isCorrect = selectedAnswer === question.correctAnswer;
@@ -70,7 +70,7 @@ function QuestionCard({ question, onAnswered }: { question: Question; onAnswered
   );
 }
 
-function StorySection({ story, index, onAnswered }: { story: Story; index: number; onAnswered: () => void }) {
+function StorySection({ story, index, onAnswered }: { story: Story; index: number; onAnswered: (correct: boolean) => void }) {
   const storyEmojis = ['🏠', '🎹', '🌱', '⏳', '📚'];
 
   return (
@@ -121,6 +121,17 @@ function StorySection({ story, index, onAnswered }: { story: Story; index: numbe
 
 function App() {
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
+
+  const handleAnswered = (correct: boolean) => {
+    setAnsweredCount(prev => prev + 1);
+    if (correct) {
+      setCorrectCount(prev => prev + 1);
+    }
+  };
+
+  const percentage = answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
+  const allAnswered = answeredCount === 30;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50">
@@ -137,8 +148,11 @@ function App() {
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xs text-gray-500">Answered</p>
-            <p className="text-lg font-bold text-indigo-600">{answeredCount}/30</p>
+            <p className="text-xs text-gray-500">Score</p>
+            <p className="text-lg font-bold text-indigo-600">
+              {correctCount}<span className="text-gray-400">/{answeredCount}</span>
+              {answeredCount > 0 && <span className="text-sm ml-1">({percentage}%)</span>}
+            </p>
           </div>
         </div>
       </header>
@@ -171,8 +185,58 @@ function App() {
 
         {/* Stories */}
         {stories.map((story, index) => (
-          <StorySection key={story.id} story={story} index={index} onAnswered={() => setAnsweredCount(prev => prev + 1)} />
+          <StorySection key={story.id} story={story} index={index} onAnswered={handleAnswered} />
         ))}
+
+        {/* Final Score */}
+        {allAnswered && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center mb-8">
+            <div className="mb-4">
+              <span className="text-5xl">
+                {percentage >= 90 ? '🏆' : percentage >= 70 ? '🎉' : percentage >= 50 ? '👍' : '📚'}
+              </span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Quiz Complete!</h2>
+            <div className="mb-4">
+              <p className="text-5xl font-bold text-indigo-600 mb-1">{percentage}%</p>
+              <p className="text-gray-500">
+                {correctCount} out of 30 correct
+              </p>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3 mb-4 overflow-hidden">
+              <div
+                className={`h-3 rounded-full transition-all duration-1000 ${
+                  percentage >= 90 ? 'bg-green-500' :
+                  percentage >= 70 ? 'bg-indigo-500' :
+                  percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'
+                }`}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
+            <p className="text-gray-600">
+              {percentage >= 90 ? 'Excellent! Outstanding comprehension!' :
+               percentage >= 70 ? 'Great job! Well done!' :
+               percentage >= 50 ? 'Good effort! Keep reading!' :
+               'Keep practicing! Try reading the stories more carefully.'}
+            </p>
+          </div>
+        )}
+
+        {/* Progress bar when not complete */}
+        {!allAnswered && answeredCount > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-gray-700">Progress</span>
+              <span className="text-sm text-gray-500">{answeredCount}/30 answered</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div
+                className="h-2 rounded-full bg-indigo-500 transition-all duration-300"
+                style={{ width: `${(answeredCount / 30) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center py-8 text-gray-500 text-sm">
