@@ -71,7 +71,6 @@ function QuestionCard({ question, onAnswered }: { question: Question; onAnswered
 }
 
 function StorySection({ story, index, onAnswered }: { story: Story; index: number; onAnswered: () => void }) {
-  const [showStory, setShowStory] = useState(false);
   const storyEmojis = ['🏠', '🎹', '🌱', '⏳', '📚'];
 
   return (
@@ -87,23 +86,18 @@ function StorySection({ story, index, onAnswered }: { story: Story; index: numbe
       </div>
 
       <div className="p-6">
-        <button
-          onClick={() => setShowStory(!showStory)}
-          className="mb-4 flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-medium text-sm transition-colors"
-        >
-          <span className={`transform transition-transform duration-200 ${showStory ? 'rotate-90' : ''}`}>▶</span>
-          {showStory ? 'Hide' : 'Read'} the story
-        </button>
-
-        {showStory && (
-          <div className="mb-6 p-5 bg-gray-50 rounded-xl border border-gray-100 max-h-96 overflow-y-auto">
-            {story.paragraphs.map((paragraph, pIndex) => (
-              <p key={pIndex} className="text-gray-700 leading-relaxed mb-4 last:mb-0 text-sm md:text-base">
-                {paragraph}
-              </p>
-            ))}
+        {/* Story text always visible at the top */}
+        <div className="mb-6 p-5 bg-amber-50/50 rounded-xl border border-amber-100">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">📖</span>
+            <span className="text-sm font-semibold text-amber-800 uppercase tracking-wide">Story Text</span>
           </div>
-        )}
+          {story.paragraphs.map((paragraph, pIndex) => (
+            <p key={pIndex} className="text-gray-700 leading-7 mb-5 last:mb-0 text-[15px] md:text-base">
+              {paragraph}
+            </p>
+          ))}
+        </div>
 
         <div className="border-t border-gray-100 pt-5">
           <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -160,7 +154,7 @@ function App() {
             <div>
               <h2 className="font-semibold text-gray-900 mb-1">How it works</h2>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• Read each story by clicking "Read the story"</li>
+                <li>• Read each story at the top of its section</li>
                 <li>• Select your answer for each question — it's graded instantly</li>
                 <li className="flex items-center gap-2">
                   <span className="inline-block w-3 h-3 rounded-full bg-green-500"></span>
