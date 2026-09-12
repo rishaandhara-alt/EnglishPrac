@@ -174,7 +174,7 @@ function App() {
             <div className="text-right">
               <p className="text-xs text-gray-500">Score</p>
               <p className="text-lg font-bold text-indigo-600">
-                {correctCount}<span className="text-gray-400">/{answeredCount}</span>
+                {correctCount}<span className="text-gray-400">/30</span>
               </p>
             </div>
             <button
